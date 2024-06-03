@@ -167,8 +167,8 @@ int readCompare(const void *r1,const void *r2){
   int bcomp;
   bam_pileup1_t *e1 = (bam_pileup1_t *)r1;
   bam_pileup1_t *e2 = (bam_pileup1_t *)r2;
-  barcode1 = bam_aux2Z(bam_aux_get(e1->b,"CB"));
-  barcode2 = bam_aux2Z(bam_aux_get(e2->b,"CB"));
+  barcode1 = bam_aux2Z(bam_aux_get(e1->b,"RG"));
+  barcode2 = bam_aux2Z(bam_aux_get(e2->b,"RG"));
   bcomp = strcmp(barcode1,barcode2);
   //Is the barcode equal?
   if(bcomp==0){
@@ -202,7 +202,7 @@ void pileupCounts10x(const bam_pileup1_t *pil, int n_plp, loci_stats *stats,FILE
     qual = bam_get_qual(p->b)[p->qpos];
     c = bam_seqi(bam_get_seq(p->b), p->qpos);
     //Get the tags
-    barcode = bam_aux2Z(bam_aux_get(p->b,"CB"));
+    barcode = bam_aux2Z(bam_aux_get(p->b,"RG"));
     umi = bam_aux2Z(bam_aux_get(p->b,"UB"));
     //printf("CB=%s, UB=%s\n",barcode,umi);
     //Skip this read?
