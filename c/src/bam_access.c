@@ -348,7 +348,7 @@ int bam_access_get_multi_position_base_counts(loci_stats **stats, int stats_coun
         }
        //Extract 10x checks
        if(is_10x){
-         aux_val_bcode = bam_aux_get(b,"CB");
+         aux_val_bcode = bam_aux_get(b,"RG");
          aux_val_umi = bam_aux_get(b,"UB");
          if(!aux_val_bcode || !aux_val_umi)
            continue;
@@ -438,7 +438,7 @@ int bam_access_get_position_base_counts(char *chr, int posn, loci_stats *stats,i
   //char *umi;
   while ((result = sam_itr_next(fholder->in, iter, b)) >= 0) {
     if(is_10x){
-      aux_val_bcode = bam_aux_get(b,"CB");
+      aux_val_bcode = bam_aux_get(b,"RG");
       aux_val_umi = bam_aux_get(b,"UB");
       if(!aux_val_bcode || !aux_val_umi){
         continue;
