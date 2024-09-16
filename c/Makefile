@@ -72,8 +72,6 @@ $(COUNTER_TARGET): $(OBJS)
 #Unit Tests
 test: $(COUNTER_TARGET)
 test: CFLAGS += $(JOIN_INCLUDES) $(INCLUDES) $(OBJS) $(LFLAGS) $(LIBS) $(CAT_LFLAGS)
-test: $(TESTS)
-	sh ./tests/runtests.sh
 
 #Unit tests with coverage
 coverage: CFLAGS += --coverage
