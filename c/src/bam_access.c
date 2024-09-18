@@ -183,10 +183,10 @@ int readCompare(const void *r1,const void *r2){
 void pileupCounts10x(const bam_pileup1_t *pil, int n_plp, loci_stats *stats,FILE *output){
   int i,j,k;
   char *barcode = NULL;
-  char *umi = NULL;
+  // char *umi = NULL;
   char *curr_barcode = NULL;
-  char *curr_umi = NULL;
-  int cnts[4] = {0};
+  // char *curr_umi = NULL;
+  // int cnts[4] = {0};
   int cellCnts[4] = {0};
   bam_pileup1_t *p;
   int qual;
@@ -203,7 +203,7 @@ void pileupCounts10x(const bam_pileup1_t *pil, int n_plp, loci_stats *stats,FILE
     c = bam_seqi(bam_get_seq(p->b), p->qpos);
     //Get the tags
     barcode = bam_aux2Z(bam_aux_get(p->b,"RG"));
-    umi = bam_aux2Z(bam_aux_get(p->b,"UB"));
+    // umi = bam_aux2Z(bam_aux_get(p->b,"UB"));
     //printf("CB=%s, UB=%s\n",barcode,umi);
     //Skip this read?
     if((p->is_del) || qual < min_base_qual){
@@ -212,35 +212,39 @@ void pileupCounts10x(const bam_pileup1_t *pil, int n_plp, loci_stats *stats,FILE
       continue;
     }
     //First time, so we need to initialise current barcode/umi
-    if(curr_umi==NULL && curr_barcode==NULL){
+    //if(curr_umi==NULL && curr_barcode==NULL){
+      //curr_barcode = barcode;
+      //curr_umi = umi;
+    //}
+
+    if(curr_barcode==NULL){
       curr_barcode = barcode;
-      curr_umi = umi;
     }
     //Count them now we can assume they're sorted
     //Check if the UMI has changed?
-    if(strcmp(umi,curr_umi)!=0){
+    //if(strcmp(umi,curr_umi)!=0){
       //Get the consensus read
-      max_obs_reads = -1;
-      j=-1;
-      for(k=0;k<4;k++){
-        if(cnts[k] == max_obs_reads){
-          j=-1;
-        }
-        if(cnts[k] > max_obs_reads){
-          max_obs_reads = cnts[k];
-          j=k;
-        }
-      }
+      //max_obs_reads = -1;
+      //j=-1;
+      //for(k=0;k<4;k++){
+        //if(cnts[k] == max_obs_reads){
+          //j=-1;
+        //}
+        //if(cnts[k] > max_obs_reads){
+          //max_obs_reads = cnts[k];
+          //j=k;
+        //}
+      //}
       //Add it to the cell level counter
-      if(j<0){
+      //if(j<0){
          //printf("No consensus allele: %d,%d,%d,%d\n",cnts[0],cnts[1],cnts[2],cnts[3]);
-      }else{
-        cellCnts[j]++;
-      }
+      //}else{
+        //cellCnts[j]++;
+      //}
       //Re-zero and store new current UMI
-      cnts[0]=cnts[1]=cnts[2]=cnts[3]=0;
-      curr_umi = umi;
-    }
+      //cnts[0]=cnts[1]=cnts[2]=cnts[3]=0;
+      //curr_umi = umi;
+    //}
     //Has the barcode changed?
     if(strcmp(barcode,curr_barcode)!=0){
       //The barcode has changed, so print the old one (assuming we found something to use)
@@ -254,16 +258,16 @@ void pileupCounts10x(const bam_pileup1_t *pil, int n_plp, loci_stats *stats,FILE
     //Add the count to the lowest level counter
     switch(c){
       case 1:
-        cnts[0]++;
+        cellCnts[0]++;
         break;
       case 2:
-        cnts[1]++;
+        cellCnts[1]++;
         break;
       case 4:
-        cnts[2]++;
+        cellCnts[2]++;
         break;
       case 8:
-        cnts[3]++;
+        cellCnts[3]++;
         break;
       default:
         break;
@@ -273,23 +277,23 @@ void pileupCounts10x(const bam_pileup1_t *pil, int n_plp, loci_stats *stats,FILE
   //Now finalise the last read
   if(n_plp>0){
     //Get the consensus read
-    max_obs_reads = -1;
-    j = -1;
-    for(k=0;k<4;k++){
-      if(cnts[k] == max_obs_reads){
-        j=-1;
-      }
-      if(cnts[k] > max_obs_reads){
-        max_obs_reads = cnts[k];
-        j=k;
-      }
-    }
+    // max_obs_reads = -1;
+    // j = -1;
+    // for(k=0;k<4;k++){
+      // if(cnts[k] == max_obs_reads){
+        // j=-1;
+      // }
+      // if(cnts[k] > max_obs_reads){
+        // max_obs_reads = cnts[k];
+        // j=k;
+      // }
+     // }
     //Add it to the cell level counter
-    if(j<0){
+    // if(j<0){
        //printf("No consensus allele: %d,%d,%d,%d\n",cnts[0],cnts[1],cnts[2],cnts[3]);
-    }else{
-      cellCnts[j]++;
-    }
+    // }else{
+      // cellCnts[j]++;
+    // }
     //Print the result (if it's worth printing)
     if(cellCnts[0]+cellCnts[1]+cellCnts[2]+cellCnts[3]>0)
       print_10x_section(output,stats->chr,stats->pos,cellCnts[0],cellCnts[1],cellCnts[2],cellCnts[3],cellCnts[0]+cellCnts[1]+cellCnts[2]+cellCnts[3],curr_barcode);
@@ -349,8 +353,10 @@ int bam_access_get_multi_position_base_counts(loci_stats **stats, int stats_coun
        //Extract 10x checks
        if(is_10x){
          aux_val_bcode = bam_aux_get(b,"RG");
-         aux_val_umi = bam_aux_get(b,"UB");
-         if(!aux_val_bcode || !aux_val_umi)
+         // aux_val_umi = bam_aux_get(b,"UB");
+         // if(!aux_val_bcode || !aux_val_umi)
+           // continue;
+	 if(!aux_val_bcode)
            continue;
        }
        //printf("Which passed quality checks.\n");
@@ -439,8 +445,10 @@ int bam_access_get_position_base_counts(char *chr, int posn, loci_stats *stats,i
   while ((result = sam_itr_next(fholder->in, iter, b)) >= 0) {
     if(is_10x){
       aux_val_bcode = bam_aux_get(b,"RG");
-      aux_val_umi = bam_aux_get(b,"UB");
-      if(!aux_val_bcode || !aux_val_umi){
+      // aux_val_umi = bam_aux_get(b,"UB");
+      // if(!aux_val_bcode || !aux_val_umi){
+        // continue;
+      if(!aux_val_bcode){
         continue;
         //printf("Failed to get tags \n");
       }
